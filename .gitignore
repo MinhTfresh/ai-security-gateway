@@ -1,0 +1,11 @@
+certs/*.key
+certs/*.csr
+certs/*.crt
+certs/*.srl
+logs/
+gateway_logs/
+*.log
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
