@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  gateway-api:
+    build: .
+    command: uvicorn main:app --host 0.0.0.0 --port 8443 --ssl-keyfile=/app/certs/server.key --ssl-certfile=/app/certs/server.crt --ssl-ca-certs=/app/certs/ca.crt --ssl-cert-reqs=2
+    ports:
+      - "8443:8443"
+    environment:
+      - REDIS_URL=redis://redis-broker:6379/0
+      - EXPECTED_GATEWAY_TOKEN=prod-super-secure-token-991
+      - LLAMA_GUARD_ENDPOINT=http://internal.local
+    volumes:
+      - ./gateway_logs:/app/logs
+      - ./certs:/app/certs:ro
+    depends_on:
+      - redis-broker
+
+  redis-broker:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis_data:/data
+
+  celery-worker:
+    build: .
+    command: celery -A tasks.celery_app worker --loglevel=info --concurrency=4
+    environment:
+      - REDIS_URL=redis://redis-broker:6379/0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./gateway_logs:/app/logs
+    depends_on:
+      - redis-broker
