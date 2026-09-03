@@ -1,5 +1,5 @@
 # ai-security-gateway
-Hardened AI Security Gateway &amp; Container Sandbox Ecosystem by Minh Thai
+Hardened AI Security Gateway &amp; Container Sandbox Ecosystem by MinhTfresh
 ```python
 import os
 import httpx
