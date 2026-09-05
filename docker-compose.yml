@@ -2,34 +2,108 @@ version: '3.8'
 
 services:
   gateway-api:
-    build: .
-    command: uvicorn main:app --host 0.0.0.0 --port 8443 --ssl-keyfile=/app/certs/server.key --ssl-certfile=/app/certs/server.crt --ssl-ca-certs=/app/certs/ca.crt --ssl-cert-reqs=2
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-security-gateway-api
+    restart: unless-stopped
+    # Command flags enforce mTLS: --ssl-keyfile, --ssl-certfile, and --ssl-ca-certs
+    command: >
+      uvicorn main:app 
+      --host 0.0.0.0 
+      --port 8443 
+      --ssl-keyfile=/app/certs/server.key 
+      --ssl-certfile=/app/certs/server.crt 
+      --ssl-ca-certs=/app/certs/ca.crt 
+      --ssl-cert-reqs=2
+      --workers=4
     ports:
       - "8443:8443"
     environment:
       - REDIS_URL=redis://redis-broker:6379/0
-      - EXPECTED_GATEWAY_TOKEN=prod-super-secure-token-991
-      - LLAMA_GUARD_ENDPOINT=http://internal.local
+      - EXPECTED_GATEWAY_TOKEN=${EXPECTED_GATEWAY_TOKEN:-your-super-secure-internal-token}
+      - LLAMA_GUARD_ENDPOINT=${LLAMA_GUARD_ENDPOINT:-http://internal.local}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - PYTHONUNBUFFERED=1
     volumes:
       - ./gateway_logs:/app/logs
-      - ./certs:/app/certs:ro
+      - ./certs:/app/certs:ro # Read-only mount of your cryptographic keys
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
-      - redis-broker
+      redis-broker:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-k", "https://localhost:8443/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - gateway-network
+    security_opt:
+      - no-new-privileges:true
 
   redis-broker:
     image: redis:7-alpine
+    container_name: ai-security-redis
+    restart: unless-stopped
+    command: >
+      redis-server 
+      --appendonly yes 
+      --requirepass ${REDIS_PASSWORD:-redis-secure-password-123}
+      --maxmemory ${REDIS_MAX_MEMORY:-512mb}
+      --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
     volumes:
-      - ./redis_data:/data
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis-secure-password-123}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gateway-network
+    security_opt:
+      - no-new-privileges:true
 
   celery-worker:
-    build: .
-    command: celery -A tasks.celery_app worker --loglevel=info --concurrency=4
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-security-celery-worker
+    restart: unless-stopped
+    command: celery -A tasks.celery_app worker --loglevel=${LOG_LEVEL:-info} --concurrency=${CELERY_CONCURRENCY:-4} --max-tasks-per-child=1000
     environment:
-      - REDIS_URL=redis://redis-broker:6379/0
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis-secure-password-123}@redis-broker:6379/0
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=${LOG_LEVEL:-info}
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./gateway_logs:/app/logs
+      - celery_data:/app/celery_data
     depends_on:
-      - redis-broker
+      redis-broker:
+        condition: service_healthy
+    networks:
+      - gateway-network
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '1'
+          memory: 512M
+
+volumes:
+  redis_data:
+    driver: local
+  celery_data:
+    driver: local
+
+networks:
+  gateway-network:
+    driver: bridge
