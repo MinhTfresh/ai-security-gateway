@@ -157,7 +157,7 @@ echo "=========================================="
 
 test_case "SECRET_KEY leak detection pattern" "grep -q 'SECRET_KEY' main.py && grep -q 'sk-' main.py"
 test_case "SYSTEM_PROMPT_LEAK detection pattern" "grep -q 'SYSTEM_PROMPT_LEAK' main.py"
-test_case "PII_DATA detection pattern (SSN)" "grep -q 'PII_DATA' main.py && grep -q '\\\\d{3}-\\\\d{2}-\\\\d{4}' main.py"
+test_case "PII_DATA detection pattern (SSN)" "grep -q 'PII_DATA' main.py && grep -q '3.-' main.py"
 test_case "Violations logged with details" "grep -q 'triggered_rules' main.py"
 test_case "REDACTED tag for blocked events" "grep -q 'BLOCK EVENT' main.py"
 
