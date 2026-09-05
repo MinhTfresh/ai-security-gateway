@@ -33,7 +33,13 @@ LLAMA_GUARD_ENDPOINT = os.getenv("LLAMA_GUARD_ENDPOINT", "")
 
 redis_client = redis.Redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379/0"))
 INJECTION_REGEX = re.compile(r"(ignore previous instructions|system prompt|override policy|sudo )", re.IGNORECASE)
-LEAK_PATTERNS = {"SECRET_KEY": re.compile(r"(?:sk-|jwt\.|bearer\s)[a-zA-Z0-9_\-\.]{20,}", re.IGNORECASE)}
+
+# Expanded to catch structural exfiltration variants
+LEAK_DETECTION_PATTERNS = {
+    "SECRET_KEY": re.compile(r"(?:sk-|jwt\.|bearer\s)[a-zA-Z0-9_\-\.]{20,}", re.IGNORECASE),
+    "SYSTEM_PROMPT_LEAK": re.compile(r"(you are a restricted system assistant|never leak this instruction)", re.IGNORECASE),
+    "PII_DATA": re.compile(r"\b\d{3}-\d{2}-\d{4}\b") # Catching Social Security Numbers
+}
 
 class PromptExecutionRequest(BaseModel):
     user_id: str = Field(..., example="usr_dev_441")
@@ -85,13 +91,24 @@ async def scan_with_llama_guard(text_content: str, user_id: str) -> str:
             raise HTTPException(status_code=502, detail="Safety infrastructure offline.")
     return text_content
 
-def scrub_outbound_data(raw_llm_output: str, user_id: str) -> str:
-    scrubbed = raw_llm_output
-    for rule, pattern in LEAK_PATTERNS.items():
-        if pattern.search(scrubbed):
-            scrubbed = pattern.sub(f" [BLOCK EVENT: {rule}_REDACTED] ", scrubbed)
-            log_security_event("OUTBOUND_LEAK_INTERCEPTED", user_id, "SANITISED", {"rule": rule})
-    return scrubbed
+def verify_and_scrub_outbound_data(raw_llm_output: str, user_id: str) -> str:
+    """Scans and redacts sensitive internal data trying to leave the system gateway."""
+    scrubbed_output = raw_llm_output
+    violations_found = []
+
+    for rule_name, pattern in LEAK_DETECTION_PATTERNS.items():
+        if pattern.search(scrubbed_output):
+            violations_found.append(rule_name)
+            # Redact the match inline
+            scrubbed_output = pattern.sub(f" [BLOCK EVENT: {rule_name}_REDACTED] ", scrubbed_output)
+
+    if violations_found:
+        log_security_event(
+            "OUTBOUND_LEAK_INTERCEPTED", user_id, "SANITISED", 
+            {"triggered_rules": violations_found}
+        )
+        
+    return scrubbed_output
 
 @app.post("/api/v1/dispatch", dependencies=[Depends(verify_gateway_auth)])
 async def dispatch_ai_workflow(request: PromptExecutionRequest, http_req: Request):
@@ -110,7 +127,7 @@ async def dispatch_ai_workflow(request: PromptExecutionRequest, http_req: Reques
         task = execute_tool_sandbox_async.delay(untrusted_code, user_id)
         return {"status": "queued", "task_id": task.id}
 
-    return {"status": "success", "data": scrub_outbound_data("Standard safe analysis engine complete.", user_id)}
+    return {"status": "success", "data": verify_and_scrub_outbound_data("Standard safe analysis engine complete.", user_id)}
 
 @app.get("/api/v1/tasks/{task_id}", dependencies=[Depends(verify_gateway_auth)])
 async def get_sandbox_result(task_id: str):
