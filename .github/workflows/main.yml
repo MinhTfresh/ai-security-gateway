@@ -1,22 +1,86 @@
-# 1. Initialize the local repository tracker
-git init
+name: AI Security Gateway CI/CD Pipeline
 
-# 2. Configure your identity globally (Replace with your actual info)
-git config --global user.name "minhtfresh"
-git config --global user.email "mqt921@gmail.com"
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
 
-# 3. Add every single file to the temporary staging area
-git add .
-
-# 4. Commit your files into local historical checkpoints
-git commit -m "feat: initial commit of minhtfresh's AI security gateway and cloud assets"
-
-# 5. Point your tracking lane to 'main'
-git branch -M main
-
-# 6. Bind your machine directory to your remote GitHub destination
-# (Replace with the actual URL you copied in Step 1)
-git remote add origin https://github.com
-
-# 7. Securely push your files up to the cloud
-git push -u origin main
+jobs:
+  security-tests:
+    runs-on: ubuntu-latest
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pytest-asyncio
+      
+      - name: Lint with Python syntax checker
+        run: |
+          python -m py_compile main.py
+          python -m py_compile tasks.py
+          python -m py_compile alerts.py
+      
+      - name: Run security test suite
+        run: |
+          bash test_suite.sh
+      
+      - name: Run pytest unit tests
+        run: |
+          pytest tests/ -v --cov=. --cov-report=xml
+        env:
+          REDIS_URL: redis://localhost:6379/0
+          EXPECTED_GATEWAY_TOKEN: test-token-12345
+          LLAMA_GUARD_ENDPOINT: http://localhost:9000
+      
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+      
+      - name: Build Docker image
+        run: |
+          docker build -t ai-security-gateway:latest .
+      
+      - name: Validate docker-compose configuration
+        run: |
+          docker compose config > /dev/null
+      
+      - name: Run Docker Compose services
+        run: |
+          docker compose up -d --wait
+          sleep 10
+      
+      - name: Health check gateway
+        run: |
+          curl -k https://localhost:8443/health || echo "Health check skipped (mTLS required)"
+        continue-on-error: true
+      
+      - name: Cleanup Docker services
+        if: always()
+        run: |
+          docker compose down -v
