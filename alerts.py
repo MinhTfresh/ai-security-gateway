@@ -38,4 +38,20 @@ def dispatch_incident_alarm(event_type: str, user_id: str, severity: str, detail
     except Exception as e:
         print(f"Alert pipeline failure: {e}")
 
+from alerts import dispatch_incident_alarm
+
+# Inside your prompt injection validation section:
+if INJECTION_REGEX.search(request.prompt):
+    # Log to persistent file block
+    log_security_event("PROMPT_INJECTION_DETECTED", user_id, "INTERCEPTED", {...})
+    
+    # Fire real-time alarm line
+    dispatch_incident_alarm(
+        event_type="PROMPT_INJECTION_ATTEMPT",
+        user_id=user_id,
+        severity="MEDIUM",
+        details={"snippet": request.prompt[:120], "ip": http_req.client.host}
+    )
+    raise HTTPException(status_code=400, detail="Security Block Event...")
+
 
