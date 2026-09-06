@@ -1,1 +1,53 @@
- 
+ name: AI Gateway Security Regression CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security-penetration-test:
+    runs-factor: ubuntu-latest
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Initialize Local Test Certificates
+        run: |
+          mkdir -p certs
+          openssl req -x509 -newkey rsa:2048 -days 1 -nodes -keyout certs/ca.key -out certs/ca.crt -subj "/CN=Test-CA"
+          openssl req -newkey rsa:2048 -nodes -keyout certs/server.key -out certs/server.csr -subj "/CN=gateway-api"
+          openssl x509 -req -in certs/server.csr -CA certs/ca.crt -CAkey certs/ca.key -CAcreateserial -out certs/server.crt -days 1
+          openssl req -newkey rsa:2048 -nodes -keyout certs/client.key -out certs/client.csr -subj "/CN=test-client"
+          openssl x509 -req -in certs/client.csr -CA certs/ca.crt -CAkey certs/ca.key -CAcreateserial -out certs/client.crt -days 1
+
+      - name: Set up Environment Variables
+        run: |
+          echo "EXPECTED_GATEWAY_TOKEN=ci-test-token-778" >> $GITHUB_ENV
+          mkdir -p gateway_logs
+
+      - name: Spin Up Secure Infrastructure Stack
+        run: |
+          docker-compose up -d --build
+          # Allow microservices to complete health checks and warm up Redis/Celery
+          sleep 7
+
+      - name: Install Testing Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install httpx pytest
+
+      - name: Execute Automated Pentests
+        # This executes a python test suite to verify defenses hold up
+        run: |
+          python -m pytest tests/test_security_gateways.py -v
+
+      - name: Tear Down Stack and Output Logs On Failure
+        if: always()
+        run: |
+          docker-compose down
+          if [ -f gateway_logs/ai_gateway_security.log ]; then
+            echo "=== AI Security Gateway Audit Logs ==="
+            cat gateway_logs/ai_gateway_security.log
+          fi
