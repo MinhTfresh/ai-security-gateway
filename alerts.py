@@ -37,3 +37,5 @@ def dispatch_incident_alarm(event_type: str, user_id: str, severity: str, detail
         httpx.post(SLACK_WEBHOOK_URL, json=slack_blocks, timeout=2.0)
     except Exception as e:
         print(f"Alert pipeline failure: {e}")
+
+
