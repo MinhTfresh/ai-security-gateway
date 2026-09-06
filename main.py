@@ -1,4 +1,4 @@
-# Copyright 2026 MinhTfresh. All Rights Reserved.
+i# Copyright 2026 MinhTfresh. All Rights Reserved.
 # Licensed under the Apache License, Version 2.0.
 
 import re
@@ -18,6 +18,22 @@ from alerts import dispatch_incident_alarm
 
 app = FastAPI(title="Hardened AI Security Gateway")
 
+
+from alerts import dispatch_incident_alarm
+
+# Inside your prompt injection validation section:
+if INJECTION_REGEX.search(request.prompt):
+    # Log to persistent file block
+    log_security_event("PROMPT_INJECTION_DETECTED", user_id, "INTERCEPTED", {...})
+    
+    # Fire real-time alarm line
+    dispatch_incident_alarm(
+        event_type="PROMPT_INJECTION_ATTEMPT",
+        user_id=user_id,
+        severity="MEDIUM",
+        details={"snippet": request.prompt[:120], "ip": http_req.client.host}
+    )
+    raise HTTPException(status_code=400, detail="Security Block Event...")
 os.makedirs("logs", exist_ok=True)
 audit_logger = logging.getLogger("AI_Security_Audit")
 audit_logger.setLevel(logging.INFO)
