@@ -13,10 +13,19 @@ The gateway acts as an **Inline Inspection Layer** implementing a zero-trust mod
 
 
 [ Hacker Request ]
+
        │ 
        ▼
- ──► [ Layer 1: Network mTLS ] ───────► Drops connection if no signed Client Cert is present.
+
+
+ ──► [ Layer 1: Network mTLS ]───────► Drops connection if no signed Client Cert is present.
+
  ──► [ Layer 2: Redis Rate Limiter ] ─► Throttles token-exhaustion and brute-force floods.
- ──► [ Layer 3: Input Filter RegEx ] ─► Identifies prompt injections ──► [ TRIGGERS ALERTS ]
+
+ ──► [ Layer 3: Input Filter RegEx ] ─► Identifies prompt injections
+
+ ──► [ TRIGGERS ALERTS ]
+
  ──► [ Layer 4: Docker Sandbox ] ────► Runs execution blocks in unprivileged boxes with NO internet.
- ──► [ Layer 5: Output Scrubbing ] ──► Cleans leaked system instructions before transmission.
+ 
+──► [ Layer 5: Output Scrubbing ] ──► Cleans leaked system instructions before transmission.
