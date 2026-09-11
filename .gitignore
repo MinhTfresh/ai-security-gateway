@@ -1,11 +1,18 @@
+# Block local cryptographic keys
 certs/*.key
 certs/*.csr
 certs/*.crt
 certs/*.srl
+
+# Block local execution logs
 logs/
 gateway_logs/
 *.log
+
+# Block python cache data
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# Block OS specific data
 .DS_Store
