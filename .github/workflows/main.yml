@@ -1,4 +1,4 @@
-name: AI Security Gateway CI/CD Pipeline
+
 
 on:
   push:
