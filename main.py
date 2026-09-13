@@ -149,3 +149,30 @@ async def dispatch_ai_workflow(request: PromptExecutionRequest, http_req: Reques
 async def get_sandbox_result(task_id: str):
     res = AsyncResult(task_id)
     return {"status": "COMPLETED", "sandbox_output": str(res.result)} if res.ready() else {"status": "PENDING"}
+
+
+# Expanded to catch structural exfiltration variants
+LEAK_DETECTION_PATTERNS = {
+    "SECRET_KEY": re.compile(r"(?:sk-|jwt\.|bearer\s)[a-zA-Z0-9_\-\.]{20,}", re.IGNORECASE),
+    "SYSTEM_PROMPT_LEAK": re.compile(r"(you are a restricted system assistant|never leak this instruction)", re.IGNORECASE),
+    "PII_DATA": re.compile(r"\b\d{3}-\d{2}-\d{4}\b") # Catching Social Security Numbers
+}
+
+def verify_and_scrub_outbound_data(raw_llm_output: str, user_id: str) -> str:
+    """Scans and redacts sensitive internal data trying to leave the system gateway."""
+    scrubbed_output = raw_llm_output
+    violations_found = []
+
+    for rule_name, pattern in LEAK_DETECTION_PATTERNS.items():
+        if pattern.search(scrubbed_output):
+            violations_found.append(rule_name)
+            # Redact the match inline
+            scrubbed_output = pattern.sub(f" [BLOCK EVENT: {rule_name}_REDACTED] ", scrubbed_output)
+
+    if violations_found:
+        log_security_event(
+            "OUTBOUND_LEAK_INTERCEPTED", user_id, "SANITISED", 
+            {"triggered_rules": violations_found}
+        )
+        
+    return scrubbed_output
