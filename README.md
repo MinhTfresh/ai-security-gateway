@@ -6,26 +6,11 @@ An enterprise-grade, deterministic **AI Firewall and Secure Reverse Proxy** engi
 
 ---
 
-## 1. System Architecture
+Python AI Defense Block is a self-healing autonomous security ecosystem:
+Continuous Deployment (GitHub CI/CD): Validates code updates automatically via regression penetration tests on every push.
+Mutual TLS Layer (mTLS): Validates trusted client identities via mandatory cryptographic handshakes at the edge.
+Structured API Block (FastAPI Gate): Intercepts script injections, processes queries asynchronously via background Redis/Celery tasks, and redacts outgoing data leaks.
+Isolated Docker Sandbox (EC2 Worker): Safely isolates and terminates unprivileged code executions with zero network access.
+Real-time Incident Alerting (Slack/SNS): Instantly notifies your engineering team of active exploit vectors.
+Active Perimeter Defense (AWS WAF Blocklist): Dynamically extracts the attacker's IP address and completely blacklists them at the cloud border.
 
-The gateway acts as an **Inline Inspection Layer** implementing a zero-trust model for all data transitions. Every request passes through a multi-stage security pipeline before hitting downstream resources.
-
-
-
-[ Hacker Request ]
-
-       │ 
-       ▼
-
-
- ──► [ Layer 1: Network mTLS ]───────► Drops connection if no signed Client Cert is present.
-
- ──► [ Layer 2: Redis Rate Limiter ] ─► Throttles token-exhaustion and brute-force floods.
-
- ──► [ Layer 3: Input Filter RegEx ] ─► Identifies prompt injections
-
- ──► [ TRIGGERS ALERTS ]
-
- ──► [ Layer 4: Docker Sandbox ] ────► Runs execution blocks in unprivileged boxes with NO internet.
- 
-──► [ Layer 5: Output Scrubbing ] ──► Cleans leaked system instructions before transmission.
