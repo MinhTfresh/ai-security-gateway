@@ -1,0 +1,10 @@
+# Authenticate your private container builder to your AWS ECR Registry
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <YOUR-ACCOUNT-ID>.dkr.ecr.us-east-1.amazonaws.com
+
+# Compile and package your source assets using the official corporate NOTICE file
+docker build -t <YOUR-ACCOUNT-ID>:// -f Dockerfile .
+
+# Upload to the enterprise asset bank
+docker push <YOUR-ACCOUNT-ID>://
+
+
