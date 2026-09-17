@@ -1,0 +1,5 @@
+terraform init
+terraform plan -out=prod_plan.binary
+terraform apply prod_plan.binary
+
+
