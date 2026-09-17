@@ -1,0 +1,15 @@
+mkdir -p certs
+cd certs
+
+# 1. Generate internal Root Certificate Authority (CA)
+openssl req -x509 -newkey rsa:4096 -days 365 -nodes -keyout ca.key -out ca.crt -subj "/CN=Internal-AI-CA"
+
+# 2. Generate and Sign Server Credentials
+openssl req -newkey rsa:4096 -nodes -keyout server.key -out server.csr -subj "/CN=gateway-api"
+openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 365
+
+# 3. Generate and Sign Trusted App Client Credentials
+openssl req -newkey rsa:4096 -nodes -keyout client.key -out client.csr -subj "/CN=internal-trusted-service"
+openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -days 365
+
+cd ..
