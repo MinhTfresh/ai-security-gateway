@@ -13,3 +13,12 @@ openssl req -newkey rsa:4096 -nodes -keyout client.key -out client.csr -subj "/C
 openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -days 365
 
 cd ..
+
+
+# Instantiate local storage volume requirements for log retention
+mkdir -p gateway_logs
+
+# Build and execute the microservice layout containers
+docker-compose up --build -d
+
+
