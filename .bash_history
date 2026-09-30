@@ -200,3 +200,22 @@ root
 user
 /h
 \h
+git add .github/ISSUE_TEMPLATE/
+# Commit your final community health configuration changes
+git commit -m "docs: implement structured bug report and security disclosure templates"
+# Push the update live (ensure you are using an authenticated pull request branch if protection rules are active)
+git push origin main
+git pull origin main
+CHANGE reposir
+UPDATE repository https://github.com/ to https://github.com/mimhtf
+UPDATE repository https://github.com/ to https://github.com/minhtfresh/ai-security-gateway
+change 
+commands
+command
+comsatd
+pkg install mailutils
+pkg install pypi
+pkg search pypi
+p
+Command [
+comsatd
