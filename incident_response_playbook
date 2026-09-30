@@ -1,0 +1,26 @@
+1. Incident Response Playbook: AI Gateway Perimeter Intercepts
+This protocol defines the exact chain of actions your Security Operations Center (SOC) and DevOps teams must take when the AI Security Gateway triggers high-severity automated blocks or sandbox escape alerts.
+Incident Level: MEDIUM – PROMPT_INJECTION_ATTEMPT or RATE_LIMIT_EXCEEDED
+Trigger Mechanism: An actor submits a payload that trips the Gateway’s heuristic regex filters or violates the sliding-window token request volume.
+Automated Action Taken by System: Gateway immediately drops the request with an HTTP 400 or 429 error code, signs a JSON block log to the persistent audit trail, and dispatches a Slack alert to the monitoring room.
+Human Remediations Requirements:
+Review Log Context: Extract the target payload snippet from the /app/logs/ai_gateway_security.log or CloudWatch Stream. Identify if it was an active threat actor probing system constraints or a false positive caused by a legitimate user passing text containing system keywords.
+Trend Evaluation: If the logs indicate the same user ID or IP is repeating variations of the prompt injection across multiple minutes, elevate the event internally to HIGH priority to invoke a perimeter eviction.
+Incident Level: HIGH – SANDBOX_ESCAPE_VIOLATION or WAF_IP_BLOCKED
+Trigger Mechanism: A malicious payload bypasses input validation filters, but the underlying untrusted agent script attempts a structural escape vector (e.g., executing forbidden keywords like os.system or subprocess) inside the worker engine. Alternatively, an automated attack fires more than 3 injections inside 60 seconds, tripping the CloudWatch WAF automation.
+Automated Action Taken by System: The container worker aborts execution instantly, returns a Security Violation crash log, and pushes a top-tier Slack notification card. The AWS Lambda function extracts the offender's source IP and updates the regional AWS WAF IP Set to drop all future packets.
+Human Remediation Requirements:
+Containment Verification: Verify that the automated WAF block completed successfully by auditing your CloudWatch Lambda outputs. Confirm the attacker's network footprint is fully neutralized at the cloud border.
+Isolate and Investigate the Script: Extract the exact script string that bypassed System 1 from the worker logs. Analyze how the language structure avoided your regular expressions.
+Patch the Boundary Heuristics: To prevent a recurrence, update the MALICIOUS_PROMPT_PATTERNS array inside main.py with an updated regex pattern targeting the new evasion technique. Push the update through your GitHub Actions CI/CD workflow to update the entire container layout.
+2. Scheduled Maintenance & Operational Rotation Runbook
+To maintain maximum runtime performance and preserve cryptographic security, your operations team should establish the following routine schedules:
+Daily Task: Log File Rotation & SIEM Ingestion Verification
+Ensure your log-rotating handlers are cleanly truncating active streams once they reach the 10MB limit.
+Confirm that your data pipelines (e.g., Fluentd, Logstash, or CloudWatch Agent) are passing the JSON strings to your central security information and event management (SIEM) dashboard without parsing dropouts.
+Weekly Task: Automated Sandbox Docker Engine Grooming
+Because the Celery task workers continuously spawn and destroy short-lived container instances, old filesystem storage layers can build up over time on your EC2 machines.
+Ensure your system crontab successfully runs the docker system prune -af --volumes command to keep the host machines clean and prevent storage exhaustion failures.
+Quarterly Task: Cryptographic Key Rotation Protocol
+To maintain a high level of defense against credential theft, rotate the certificates used by your mTLS Application Load Balancer and internal enterprise client services every 90 days.
+Run the certificate generation steps using your official Certificate Authority, deploy the updated public key certificates into your AWS Certificate Manager Trust Store, and update your client connections seamlessly without taking the core gateway 
