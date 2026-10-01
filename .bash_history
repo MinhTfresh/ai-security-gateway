@@ -34,24 +34,24 @@ git push origin main
 # 1. Initialize the local repository tracker
 git init
 # 2. Configure your identity globally (Replace with your actual info)
-git config --global user.name "minhtfresh"
-git config --global user.email "your-github-email@example.com"
+git config --global user.name "MinhTfresh"
+git config --global user.email "https://MinhTfresh@github.com"
 # 3. Add every single file to the temporary staging area
 git add .
 # 4. Commit your files into local historical checkpoints
-git commit -m "feat: initial commit of minhtfresh's AI security gateway and cloud assets"
+git commit -m "feat: initial commit of MinhTfresh's AI security gateway and cloud assets"
 # 5. Point your tracking lane to 'main'
 git branch -M main
 # 6. Bind your machine directory to your remote GitHub destination
 # (Replace with the actual URL you copied in Step 1)
-git remote add origin https://github.com
+git remote add origin https://github.com/MinhTfresh/ai-security-gateway/
 # 7. Securely push your files up to the cloud
 git push -u origin main
 # 1. Initialize the local repository tracker
 git init
 # 2. Configure your identity globally (Replace with your actual info)
-git config --global user.name "MinhTFresh"
-git config --global user.email "minh.thai1@snhu.edu"
+git config --global user.name "MinhTfresh"
+git config --global user.email "https://MinhTfresh@github.com
 # 3. Add every single file to the temporary staging area
 git add .
 # 4. Commit your files into local historical checkpoints
@@ -59,15 +59,15 @@ git commit -m "feat: initial commit of MinhTFresh's AI security gateway and clou
 # 5. Point your tracking lane to 'main'
 git branch -M main
 # 6. Bind your machine directory to your remote GitHub destination
-# (https://guthub.com/MinhTFresh/ai-security-gateway)
-git remote add origin https://github.com
+# (https://guthub.com/MinhTfresh/ai-security-gateway)
+git remote add origin https://github.com/MinhTfresh/ai-security-gateway/
 # 7. Securely push your files up to the cloud
 git push -u origin main
 # 1. Initialize the local repository tracker
 git init
 # 2. Configure your identity globally (Replace with your actual info)
-git config --global user.name "MinhTFresh"
-git config --global user.email "minh.thai1@snhu.edu"
+git config --global user.name "MinhTfresh"
+git config --global user.email"https://MinhTfresh@github.com"
 # 3. Add every single file to the temporary staging area
 git add .
 # 4. Commit your files into local historical checkpoints
@@ -75,8 +75,8 @@ git commit -m "feat: initial commit of MinhTFresh's AI security gateway and clou
 # 5. Point your tracking lane to 'main'
 git branch -M main
 # 6. Bind your machine directory to your remote GitHub destination
-# (https://guthub.com/MinhTFresh/ai-security-gateway)
-git remote add origin https://github.com/MinhTFresh/ai-security-gateway
+# (https://guthub.com/MinhTfresh/ai-security-gateway)
+git remote add origin https://github.com/MinhTfresh/ai-security-gateway
 # 7. Securely push your files up to the cloud
 git push -u origin main
 test
