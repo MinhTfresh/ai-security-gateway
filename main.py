@@ -1,6 +1,3 @@
-i# Copyright 2026 MinhTfresh. All Rights Reserved.
-# Licensed under the Apache License, Version 2.0.
-
 import re
 import os
 import time
