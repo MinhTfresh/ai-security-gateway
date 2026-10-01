@@ -65,3 +65,4 @@ def lambda_handler(event, context):
     
     print(f"🔒 Perimeter Shield Updated! Successfully blocked {len(malicious_ips)} attacker IPs globally.")
     return {"status": "success", "blocked_ips": updated_addresses
+    }
