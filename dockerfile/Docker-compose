@@ -1,7 +1,3 @@
-import re
-import os
-import httpx
-import docker
 from typing import Dict, Any, List
 from fastapi import FastAPI, HTTPException, Depends, Security
 from fastapi.security.api_key import APIKeyHeader
