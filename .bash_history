@@ -24,7 +24,7 @@ nano security_vulnerability.md
 # Stage the freshly updated markdown files
 git add .github/ISSUE_TEMPLATE/* CONTRIBUTING.md
 # Commit using your exact name
-git commit -m "docs: finalize user community templates and re-attribute files to minhtfresh"
+git commit -m "docs: finalize user community templates and re-attribute files to MinhTfresh"
 # Push the update live to GitHub
 git push origin main
 nano README.md
@@ -43,7 +43,7 @@ git commit -m "feat: initial commit of MinhTfresh's AI security gateway and clou
 # 5. Point your tracking lane to 'main'
 git branch -M main
 # 6. Bind your machine directory to your remote GitHub destination
-# (Replace with the actual URL you copied in Step 1)
+# (https://github.com/MinhTfresh/ai-security-gateway)
 git remote add origin https://github.com/MinhTfresh/ai-security-gateway/
 # 7. Securely push your files up to the cloud
 git push -u origin main
@@ -207,8 +207,8 @@ git commit -m "docs: implement structured bug report and security disclosure tem
 git push origin main
 git pull origin main
 CHANGE reposir
-UPDATE repository https://github.com/ to https://github.com/mimhtf
-UPDATE repository https://github.com/ to https://github.com/minhtfresh/ai-security-gateway
+UPDATE repository https://github.com/ to https://github.com/MinhTfresh/ai-security-gateway
+UPDATE repository https://github.com/ to https://github.com/MinhTfresh/ai-security-gateway
 change 
 commands
 command
