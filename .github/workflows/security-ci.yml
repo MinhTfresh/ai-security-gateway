@@ -47,7 +47,4 @@ jobs:
         if: always()
         run: |
           docker-compose down
-          if [ -f gateway_logs/ai_gateway_security.log ]; then
-            echo "=== AI Security Gateway Audit Logs ==="
-            cat gateway_logs/ai_gateway_security.log
-          fi
+  
