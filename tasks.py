@@ -30,13 +30,14 @@ def execute_tool_sandbox_async(code: str, user_id: str) -> str:
         dispatch_incident_alarm("SANDBOX_ESCAPE_VIOLATION", user_id, "HIGH", {"blocked_payload": code})
         return "Security Violation: Prohibited code patterns detected at worker validation layer."
 
+
     try:
         client = docker.from_env()
-        container = client.containers.run(
+        container_pool = [client.containers.run(
             image="python:3.11-slim",
             command=["python", "-c", code],
             network_mode="none",
-            mem_limit="64m",
+    mem_limit=os.getenv("SANDBOX_MEM_LIMIT","256m"),
             nano_cpus=250000000,
             read_only=True,
             user="nobody",
