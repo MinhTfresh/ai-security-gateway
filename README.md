@@ -37,8 +37,10 @@ The system operates as an Inline Reverse Proxy sitting between untrusted clients
 Ensure your local project directory structure matches the layout below:
 
 ai-security-gateway/
-├── certs/                      # Generated mTLS certificates
-├── gateway_logs/               # Persistent JSON log files
+├── certs/                      
+# Generated mTLS certificates
+├── gateway_logs/               
+# Persistent JSON log files
 ├── tests/
 │   └── test_security_gateways.py
 ├── .github/
