@@ -14,7 +14,7 @@ The system operates as an Inline Reverse Proxy sitting between untrusted clients
                             │
                             ▼
               ┌───────────────────────────┐
-              │ 1. Network Edge (mTLS)    │  <-- drops connection if unsigned
+              │ 1. Network Edge (mTLS)    │  <--       drops connection if unsigned
               └─────────────┬─────────────┘
                             │
                             ▼
@@ -37,33 +37,58 @@ The system operates as an Inline Reverse Proxy sitting between untrusted clients
 Ensure your local project directory structure matches the layout below:
 
 ai-security-gateway/
-├── certs/                      
+
+├── certs/ 
+                     
 # Generated mTLS certificates
-├── gateway_logs/               
+
+├── gateway_logs/
+               
 # Persistent JSON log files
+
 ├── tests/
+
 │   └── test_security_gateways.py
+
 ├── .github/
+
 │   └── workflows/
+
 │       └── security-ci.yml
+
 ├── docker-compose.yml
+
 ├── Dockerfile
+
 ├── requirements.txt
+
 ├── main.py
+
 ├── tasks.py
+
 └── alerts.py
+
+
 
 
 requirements.txt
 
 fastapi==0.110.0
+
 uvicorn[standard]==0.28.0
+
 celery==5.3.6
+
 redis==5.0.3
+
 docker==7.0.0
+
 httpx==0.27.0
+
 pydantic==2.6.4
+
 boto3==1.34.0
+
 pytest==9.0.3
 
 
