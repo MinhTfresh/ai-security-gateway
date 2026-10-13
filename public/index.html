@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Security Gateway</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+        p {
+            margin-bottom: 15px;
+            color: #666;
+        }
+        .api-info {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .endpoint {
+            font-family: 'Courier New', monospace;
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 3px;
+            margin: 10px 0;
+            display: block;
+        }
+        .status {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+            color: #999;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ AI Security Gateway</h1>
+        <p><strong>Enterprise-grade AI Firewall and Secure Reverse Proxy</strong></p>
+        
+        <div class="api-info">
+            <h2>API Information</h2>
+            <p>An enterprise-grade, deterministic AI Firewall engineered to protect downstream LLMs, databases, and enterprise services from advanced malicious exploits, prompt injections, and data exfiltration vectors.</p>
+            
+            <h3>Available Endpoints:</h3>
+            <code class="endpoint">GET /health - Health check endpoint</code>
+            <code class="endpoint">POST /api/v1/dispatch - AI workflow dispatch</code>
+            <code class="endpoint">GET /docs - Interactive API documentation (Swagger UI)</code>
+            <code class="endpoint">GET /redoc - Alternative API documentation (ReDoc)</code>
+            
+            <div class="status">✓ API Active</div>
+        </div>
+        
+        <div class="footer">
+            <p>Created and Maintained by: MinhTfresh | License: Apache 2.0</p>
+        </div>
+    </div>
+
+    <!-- Vercel Web Analytics -->
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>
